@@ -11,3 +11,6 @@ Encoding: UTF-8
 
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
+
+BuildType: Makefile
+MakefilePath: C:/Users/sahluwalia/Desktop/Simrat/1-SAP-Proj-Mngt-Data-Sc/Data-Science/SMU-Docs/2.Mahesh-MSDS-6306-Doing-Data-Science/Case-Study-1/GitHub_Project/MSDS-6306-Case_Study_1

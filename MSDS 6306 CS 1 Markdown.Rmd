@@ -1,0 +1,406 @@
+  ---
+title: "MSDS 6306 Case Study 1"
+author: 'Author: Simrat Ahluwalia'
+date: "March 19, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ 
+# Case Study Introduction
+> Case study about GDP of the countries, their ranking and the income group they fall in. 
+> The make file is the mother file to call other sources to execute the complete analysis done on this case study. 
+
+
+### GDP (Gross Domestic Product)
+**GDP** is the combination of three individual terms Gross, Domestic and Product commonly know as Gross Domestic Product (GDP)
+Individually these three terms are summarized as:
+
+**GROSS**: The depreciation in the capital assets of the country, occurred during the year is inclusive. 
+
+**DOMESTIC**: Domestic implies, produced within the geographical boundaries. 
+
+**PRODUCT**: The final goods and services. Final implies that intermediate goods are not taken into account. 
+
+In other words , in a given period of time GDP is the total monetary value of the final goods and services which are produced within the geographical boundaries of any country.
+
+**Data files used for the analysis were downloaded from:**
+
+  https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv
+  https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv
+
+### * The purpose of this study is to clean, merge and analyze these data files to answer following questions:
+
++ Merge the data based on the country short code and find how many of the IDs match?
+
++ Sort the merged file  in ascending order by GDP  so that United States comes at the last  and to find the 13th country from this merged file , since the file is sorted in ascending order by GDP value (USD) , 13th country will be considered from the top of the sorted data file .
+
++ The average GDP rankings for the countries which comes under  "High income: OECD" and "High income: nonOECD" groups.
++ Display the distribution of GDP value for all the countries by income group using tools such as ggplot.
++ Provide summary statistics of GDP by income groups.
++ Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income Group. 
++ How many countries are Lower middle income but among the 38 nations with highestGDP?
+
+After doing the complete cleanup and analysis of the case study, it has been analyzed that there are **189** countries with complete information about the relevant data which was considered for this analysis.
+For example their **Country code, GDP ranking, GDP in millions of US dollars, Country name and the Income group** the country falls in out of the **5** groups category.
+
+**>  13th country from the top of the merged data file in ascending order is -> St. Kitts and Nevis**
+
+**>  Average GDP rankings for the High income:    OECD group =  32.96667**
+
+**>  Average GDP rankings for the High income: nonOECD group =  91.91304**
+
+**>  There are 5 countries which are in Lower middle income group but among the 38 nations with highest GDP's**
+
+**>  Further data between income group of countries and their GDP value has been plotted for visual reference.**
+
++ This visual plot suggests that the countries which are in Highest Income:OECD group have higest GDP values
+ 
+ 
+Packages included for Data Analysis
+-----------------------------
+```{r, message=F, warning=F}
+require(ggplot2)
+require(RCurl)
+require(plyr)
+require(scales)
+library(RCurl)
+library(dplyr)
+library(reshape2)
+library(plyr)
+library(tcltk)
+library(sqldf)
+```
+ 
+ 
+##### _Load_data.R script will retrieve the Raw data files from the internet and upload them in the projects Data folder for further analysis._
+
+_source("load_data.R")_
+
+# Load Data
+First of all both the data files will be downloaded from internet and will be stored in a folder called 'Data' witin the project.
+
+```{r,message=F, warning=F}
+#Setting the working directory as current directory
+setwd('.')
+#Displaying the current working directory
+getwd()
+
+# Saving data files URL's in variables.
+gdpURL <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv"
+CountryURL <-"https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
+
+# Downloading GDP data file and Country Stats data csv files.
+download.file(gdpURL, destfile = "./Raw_Data/gdpData.csv" )
+download.file(CountryURL, destfile = "./Raw_Data/CountryData.csv")
+
+# Reading getdata-2Fdata-2FGDP.csv into gdp data frame
+gdp <- read.csv(".\\Raw_Data\\gdpData.csv")
+#Reading getdata_data_EDSTATS_Country.csv into country data frame
+country <- read.csv(".\\Raw_Data\\CountryData.csv")
+```
+
+#
+# Clean and merge data
+ Clean up file will do the merge and data cleanup of both the data files. 
+ Clean up includes removing the records with null values from columns which are most relevent for the analysis of this case study, such as CountrtyCode, Ranking, Economy_Name, USD_in_Millions, Income_Group.
+ 
+ Data files contained many blank columns, those extra columns had no relevance thus some of them were removed from the data sets.
+ -
+ Following blank columns were removed from gdpData data file -> : X.1, X.4, X.5, X.6, X.7 and X.8 
+ -
+ Few columns in gdp data file were renamed so the column name can make more sense while reading the  data:
+ -
+ column 'X' was renamed to Countrycode
+ Column 'Gross.domestic.product2012' was renamed to Ranking
+ Column 'X.2' was renamed to Economy_name
+ Column 'X.3' was renamed to USD_in_Millions
+
+ Following column was renamed in CountryData data file:
+ -
+ Column 'Income.Group' was renamed to Income_group
+ gdpData and CountryData files were merged into one file called mergedata1 and 
+ 
+ Following columns were used from  the merged file ( mergedata1) for further data analysis
+ -
+ CountryCode
+ Ranking
+ Economy_Name
+ USD_in_Millions ( Country GDP )
+ Income_Group
+
+
+_source("clean_and_merge_data.R")  _
+
+```{r}
+
+#------------------Clean Up and merge raw data files ----------------------
+
+# Deleting X.1,X.4,X.5,X.6,X.7 and X.8 blank columns from gdp dataframe.
+gdp <- subset(gdp,select =-c(X.1,X.4,X.5,X.6,X.7,X.8))
+
+# Replacing following column name to give them more meaningful names
+
+# Replacing the blank column name with 'CountryCode'
+colnames(gdp)[1] <- 'CountryCode'
+# Replacing the 2nd column name with 'Ranking'
+colnames(gdp)[2] <- 'Ranking'
+# Replacing Economy with Economy_name
+colnames(gdp)[3] <- 'Economy_Name'
+# Replacing US.dollars. with USD_in_Millions
+colnames(gdp)[4] <- 'USD_in_Millions'
+
+# Income.Group as Income_Group
+colnames(country)[3] <- 'Income_Group'
+
+#  Merged data frames 'gdp' and 'country' on columan 'CountryCode'   [ key (by) = CountryCode ]
+
+# 1 -> Merged data frame of above 2 data frames, key (by) = CountryCode 
+mergedata1 <- merge(x=gdp, y=country, by = "CountryCode", all = TRUE, incomparables = TRUE )
+
+# Removing records having 'NA' or spaces from columns CountryCode and Ranking 
+mergedata1 <- mergedata1[!(is.na(mergedata1$CountryCode)| mergedata1$CountryCode=="" | is.na(mergedata1$Ranking) | mergedata1$Ranking==""),]
+cat("\n")
+```
+### Data was merged based on the country shortcode
+### Q 1 >  Merge the data based on the country shortcode. How many of the IDs match?
+
+```{r}
+cat("   Data was merged based on the country shortcode and total of ", as.vector(dim(mergedata1))[1] ,"IDs were matched \n")
+# no_Income_Group <- sqldf("select CountryCode,Ranking,Economy_Name,USD_in_Millions,Income_Group from mergedata1 where Income_Group is NULL")
+
+# To find if there are any countries with no Income Group associated to them.
+cat("   Following Country(s) does not have any Income Groups associated with them  \n\n")
+sqldf("select CountryCode,Ranking,Economy_Name,USD_in_Millions,Income_Group from mergedata1 where Income_Group is NULL")
+```
+
+### Ans 1 > After cleaning up the merged data file, the number of Id's which matched were 189
+
+```{r}
+
+# Removing records having 'NA' or spaces from column Income Group
+mergedata1 <- mergedata1[!(is.na(mergedata1$Income_Group)| mergedata1$Income_Group==""),]
+cat("   After cleaning the data with missing values in Country Code, Ranking, Economy Name, GDP(in USD) and Income Group , -> ", as.vector(dim(mergedata1))[1] ,"IDs were matched \n")
+
+#convert Ranking and US.dollars. from factor to numeric
+mergedata1$Ranking <- as.numeric(gsub(",", "", mergedata1$Ranking))
+mergedata1$USD_in_Millions <- as.numeric(gsub(",", "", mergedata1$USD_in_Millions))
+
+# dimensions of the cleaned data (mergedata1)
+dim(mergedata1)
+cat("\n")
+cat("   Data was merged based on the country shortcode and total of ", as.vector(dim(mergedata1))[1] ,"IDs were matched \n")
+
+```
+
+##Data analysis
+
+### Q 2 [a] > Sort the data frame in ascending order by GDP (so United States is last). 
+###     [b]   What is the 13th country in the resulting data frame?
+
+```{r}
+
+
+#--- Q2 
+#    Sort the data frame in ascending order by GDP (so United States is last).
+#    Find the 13th country (descending order)
+
+mergedata1 <- mergedata1[order(mergedata1$USD_in_Millions, decreasing = FALSE, na.last=NA),]
+
+# After data cleanup and sorting on USD_in_Millions (countries GDP in millions), 
+# here is the snapshot of the selective cleaned data.
+# Top 10 records of the cleaned data in decreasing order of their GDP and Rank
+# Their Country code, Rank, Name, GDP In Millions and their Income Group (in decreasing order of their GDP and Rank)
+```
+
+### Ans 2 [a]> Merged data got sorted in ascending order of GDP (United States is last)
+### Below you can see the sorted data from the top and bottom of the data file. .
+
+```{r} 
+headofmergedata1 <- head(mergedata1[,c("CountryCode","Ranking","Economy_Name","USD_in_Millions","Income_Group")],10)
+print(headofmergedata1)
+cat("\n")
+# Bottom 10 records with their Country code, Rank, Name, GDP In Millions and their Income Group 
+# File is sorted in the decreasing order of their GDP and ranking thats why highest GPS and Rank is at the bottom.
+tailofmergedata1 <- tail(mergedata1[,c("CountryCode","Ranking","Economy_Name","USD_in_Millions","Income_Group")],10)
+print(tailofmergedata1)
+
+# Writing output to a CSV file
+write.csv(mergedata1, file = ".\\Clean_data\\mergedata1.csv")
+
+#--How many total Ranking Countries ?
+cat ("   Total number of Ranking countries  are -> ", nrow(mergedata1),"\n")
+```
+
+### Ans 2 [b] > 13th country from the top of the merged data file in ascending order is -> St. Kitts and Nevis
+
+```{r}
+
+#--Which Country is the 13th Country from top decreasing order
+cat("   13th Country in the cleaned data file with decreasing order in GDP and Ranking is -> ",as.vector(mergedata1$Economy_Name[13])," \n") 
+cat("\n")
+
+#--- Q3 
+#    Average GDP rankings for the "High income: OECD" and "High income: nonOECD" groups
+# Sub setting highIncomeOECD group from mergedata1 
+highIncomeOECD <- subset(mergedata1,mergedata1$Income_Group=="High income: OECD")
+
+# Storing Mean of highIncomeOECD$Ranking
+highIncomeOECDRanking <-mean(highIncomeOECD$Ranking)
+
+# Sub setting highIncomeNonOECD group from mergedata1
+highIncomeNonOECD <- subset(mergedata1,mergedata1$Income_Group=="High income: nonOECD")
+```
+
+### Q 3 > What are the average GDP rankings for the "High income: OECD" and "High income: nonOECD" groups?
+### Ans 3 > Average GDP rankings for the "High income: OECD" and "High income: nonOECD" groups are following:
+#### Average GDP rankings for the High income:    OECD group =  32.96667 
+#### Average GDP rankings for the High income: nonOECD group =  91.91304 
+
+```{r}
+# Storing Mean of highIncomeNonOECD$Ranking
+highIncomeNonOECDRanking<-mean(highIncomeNonOECD$Ranking)
+cat("   Average GDP rankings for the High income:    OECD group = ",highIncomeOECDRanking,"\n")
+cat("   Average GDP rankings for the High income: nonOECD group = ",highIncomeNonOECDRanking,"\n\n")
+
+```
+
+### Q 4 > Show the distribution of GDP value for all the countries and color plots by income group. Use ggplot2 to create your plot. 
+### Ans 4 > Below is the distribution of GDP value for all the countries and color plots by income group.
+#### HighIncome:OECD group has the highest distribution of GDP values in USD millions.
+
+```{r}
+
+
+#--- Q4
+#    Plot the GDP for all of the countries. Used ggplot2 to color plot by Income Group.
+#    There was one record with Income_Groups column has "NA" in it 
+#    below syntax is to remove the "NA" and create groupwise bar chart  [different color represent different group]
+
+ggplot(mergedata1,aes(x=Income_Group, y=USD_in_Millions,group_by(mergedata1$Income_Groups)))+ geom_bar(aes(fill=mergedata1$Income_Group), stat = "identity") + scale_fill_brewer(palette="Set2") + theme( axis.text.x=element_text(angle=90)) +scale_y_continuous(labels = comma)
+```
+
+### Q 5 > Provide summary statistics of GDP by income groups.
+### Ans 5 > There are 5 income groups , below are the summary statictics of each group
+
+```{r}
+#--- Q5
+#   Summary statistics of GDP by Income Group
+#   Subsetting the Income Groups to generate summary statistics of each Group
+low_income <- subset(mergedata1,mergedata1$Income_Group=="Low income")
+lower_middle_income <- subset(mergedata1,mergedata1$Income_Group=="Lower middle income")
+upper_middle_income <- subset(mergedata1,mergedata1$Income_Group=="Upper middle income")
+```
+
+### Let's start with the aggregated summary statistics of all the five Income Groups: 
+
+```{r}
+# Aggregated summary statistics of all the five Income Groups.
+cat("   Aggregate Group by GDP in USD millions \n")
+aggregate(mergedata1$USD_in_Millions, by=list(mergedata1$Income_Group),FUN=sum)
+
+highIncomeOECD_Summary <- summary(highIncomeOECD$USD_in_Millions, digits = 10)
+highIncomeNonOECD_summary <- summary(highIncomeNonOECD$USD_in_Millions, digits = 10)
+low_income_Summary <- summary(low_income$USD_in_Millions, digits = 10)
+lower_middle_income_Summary <- summary(lower_middle_income$USD_in_Millions, digits = 10)
+upper_middle_income_Summary <-summary(upper_middle_income$USD_in_Millions, digits = 10)
+```
+
+### Summary statistics for highIncomeOECD income group are following :
+
+```{r}
+# Summary statistics for highIncomeOECD income group.
+cat("Summary statistics for High Income OECD group\n\n","   Lowest GDP in Millions (USD) in high income OECD groups is  ->",as.vector(highIncomeOECD_Summary)[1]," M\n","   Mean GDP in Millions (USD) in high income OECD groups is    ->",as.vector(highIncomeOECD_Summary)[4]," M\n","   Median GDP in Millions (USD) in high income OECD groups is  ->",as.vector(highIncomeOECD_Summary)[3]," M\n","   Highest GDP in Millions (USD) in high income OECD groups is ->",as.vector(highIncomeOECD_Summary)[6],"M\n")
+```
+
+### Summary statistics for highIncomeNonOECD income group are following:
+
+```{r}
+# Summary statistics for highIncomeNonOECD income group.
+cat("Summary statistics for High Income Non OECD group\n\n","   Lowest GDP in Millions (USD) in high income Non OECD groups is  ->",as.vector(highIncomeNonOECD_summary)[1]," M\n","   Mean GDP in Millions (USD) in high income Non OECD groups is    ->",as.vector(highIncomeNonOECD_summary)[4]," M\n","   Median GDP in Millions (USD) in high income Non OECD groups is  ->",as.vector(highIncomeNonOECD_summary)[3]," M\n","   Highest GDP in Millions (USD) in high income Non OECD groups is ->",as.vector(highIncomeNonOECD_summary)[6]," M\n")
+```
+
+### Summary statistics for low income group are following:
+
+```{r}
+# Summary statistics for low income group.
+cat("Summary statistics for Low Income group \n\n","   Lowest GDP in Millions (USD) in low income groups is  ->",as.vector(low_income_Summary)[1]," M\n","   Mean GDP in Millions (USD) in low income groups is    ->",as.vector(low_income_Summary)[4]," M\n","   Median GDP in Millions (USD) in low income groups is  ->",as.vector(low_income_Summary)[3]," M\n","   Highest GDP in Millions (USD) in low income groups is ->",as.vector(low_income_Summary)[6]," M\n")
+```
+
+### Summary statistics for lower middle income group are following:
+
+```{r}
+# Summary statistics for lower middle income group.
+cat("Summary statistics for Lower Middle Income group \n\n","   Lowest GDP in Millions (USD) in lower middle income groups is  ->",as.vector(lower_middle_income_Summary)[1]," M\n","   Mean GDP in Millions (USD) in lower middle income groups is    ->",as.vector(lower_middle_income_Summary)[4]," M\n","   Median GDP in Millions (USD) in lower middle income groups is  ->",as.vector(lower_middle_income_Summary)[3]," M\n","   Highest GDP in Millions (USD) in lower middle income groups is ->",as.vector(lower_middle_income_Summary)[6]," M\n")
+```
+
+### Summary statistics for upper middle income group are following:
+
+```{r}
+# Summary statistics for upper middle income group.
+cat("Summary statistics for Upper Middle Income group\n\n","   Lowest GDP in Millions (USD) in upper middle income groups is  ->",as.vector(upper_middle_income_Summary)[1]," M\n","   Mean GDP in Millions (USD) in upper middle income groups is    ->",as.vector(upper_middle_income_Summary)[4]," M\n","   Median GDP in Millions (USD) in upper middle income groups is  ->",as.vector(upper_middle_income_Summary)[3]," M\n","   Highest GDP in Millions (USD) in upper middle income groups is ->",as.vector(upper_middle_income_Summary)[6]," M\n")
+```
+
+### Q 6 [a]> Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income.Group.
+###  [b] How many countries are Lower middle income but among the 38 nations with highest GDP?
+
+### Ans 6 [a] > GDP Ranking was cut into 5 separate quantile and these quantile groups were assigned to each country they fall in.
+#### A new data column "RankingGroup" is introduced in the cleaned data file, 
+#### which can eventually help us to generate statistics of which country income group falls in which quantile and can give us income group vs quantile range statistics.
+
+```{r}
+#--- Q6. 
+# a] Cut GDP ranking into 5 separate quantile groups. Table versus Income.Group.
+
+gdpQuantile <- quantile(mergedata1$Ranking, probs = seq(0,1,0.2),na.rm=TRUE)
+gdpQuantile
+
+cutgdpQuantile <- cut(mergedata1$Ranking, breaks = gdpQuantile)
+mergedata1$RankingGroup <- cutgdpQuantile
+
+merge_RankingGroup <- table(mergedata1$Income_Group, mergedata1$RankingGroup )
+merge_RankingGroup
+```
+
+### Ans 6 [b] > Total number of countries with Lower middle income but among the 38 nations with highest GDP are ->  5 
+
+```{r}
+# b] Find Countries that are in Lower middle income but among the first 38 nations with highest GDP
+# Number under column name = TRUE are the number of countries which are in Lower middle income group
+
+table(mergedata1$Income_Group, mergedata1$Income_Group=="Lower middle income" & mergedata1$Ranking <39)
+count_lower__middle_income_group_countries<-table(mergedata1$Income_Group, mergedata1$Income_Group=="Lower middle income" & mergedata1$Ranking <39)
+
+cat("    Total number of countries in Lower middle income group are -> ", count_lower__middle_income_group_countries[5,2],"\n")
+```
+
+### Countries with Lower middle income but among the 38 nations with highest GDP are following:
+
+```{r}
+cat(" Following are the countries which are in the lower middle income group but among the 38 nations with highest GDP :")
+
+lower_middle_income_group_countries  <-sqldf("select CountryCode,Ranking,Economy_Name,USD_in_Millions,Income_Group from mergedata1 where Income_Group=='Lower middle income' and  Ranking <39")
+print(lower_middle_income_group_countries)
+```
+
+## Conclusion:
+
+#### Countries in this case study are basically divided into five different income categories based upon their total monetary value of the final goods and services which are produce within the geographical boundaries of their country.
+
++ High Income OECD group has least number of countries (23) present in that group and they have the highest combined GDP as a group.
+
++ Countries which are in Low Income group, their combined GDP is only 12% in comparison to the High IncomeOECD group
+
++ Countries in the Lower middle income and Upper middle income groups are very close in terms of GDP based on the number of countries and GDP value in total in their respective group.
+
++ Looking at the bar graph it looks like a right tailed distribution and does not suggest a normal distribution because of the extreme outliers in the High Income OECD group.
+
+
+
+
