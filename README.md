@@ -48,7 +48,7 @@ In other words , in a given period of time GDP is the total monetary value of th
 
 ##### The project was divided 3 parts and three separate '.R' files were created for : 
 
-+ Data downloading form internet and loading into respective data frames.
++ Data downloading from internet and loading into respective data frames.
 
 + Merging the data files and the cleanu process was done to get correct results.
 
