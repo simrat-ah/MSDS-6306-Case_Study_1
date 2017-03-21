@@ -8,16 +8,16 @@
 # Case Study 1
 
 ### GDP (Gross Domestic Product)
-**GDP** is the combination of three individual terms Gross, Domestic and Product commonly know as Gross Domestic Product (GDP)
+**GDP** is the combination of three individual terms Gross, Domestic and Product commonly known as Gross Domestic Product (GDP)
 Individually these three terms are summarized as:
 
 **GROSS**: The depreciation in the capital assets of the country, occurred during the year is inclusive. 
 
 **DOMESTIC**: Domestic implies, produced within the geographical boundaries. 
 
-**PRODUCT**: The final goods and services. Final implies that intermediate goods are not taken into account. 
+**PRODUCT**: The final goods and services. Final implies that intermediate goods are not considered. 
 
-In other words , in a given period of time GDP is the total monetary value of the final goods and services which are produced within the geographical boundaries of any country.
+In other words, in a given period of time GDP is the total monetary value of the final goods and services which are produced within the geographical boundaries of any country.
 
 **Data files used for the analysis were downloaded from:**
 
@@ -32,7 +32,7 @@ In other words , in a given period of time GDP is the total monetary value of th
 
 + Merge the data based on the country short code and find how many of the IDs match?
 
-+ Sort the merged file  in ascending order by GDP  so that United States comes at the last  and to find the 13th country from this merged file , since the file is sorted in ascending order by GDP value (USD) , 13th country will be considered from the top of the sorted data file .
++ Sort the merged file  in ascending order by GDP  so that United States comes at the last  and to find the 13th country from this merged file, since the file is sorted in ascending order by GDP value (USD), 13th country will be considered from the top of the sorted data file.
 
 + The average GDP rankings for the countries which comes under  "High income: OECD" and "High income: nonOECD" groups.
 
@@ -44,15 +44,15 @@ In other words , in a given period of time GDP is the total monetary value of th
 
 + How many countries are Lower middle income but among the 38 nations with highestGDP?
 
-### In order to do find answers for above questions, complete data analysis was done.
+### In order to find answers for above questions, complete data analysis was done.
 
 ##### The project was divided 3 parts and three separate '.R' files were created for : 
 
 + Data downloading from internet and loading into respective data frames.
 
-+ Merging the data files and the cleanu process was done to get correct results.
++ Merging the data files and the cleanup process was done to get correct results.
 
-+ Complete data anaysis to produce the required results.
++ Complete data analysis to produce the required results.
 
 **Mother Makefile.R has been created to source the above multiple files and the project can be executed from the single makefile.**
 
