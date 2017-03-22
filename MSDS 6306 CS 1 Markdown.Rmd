@@ -402,5 +402,16 @@ print(lower_middle_income_group_countries)
 + Looking at the bar graph it looks like a right tailed distribution and does not suggest a normal distribution because of the extreme outliers in the High Income OECD group.
 
 
+## References:
+
++ https://www.r-bloggers.com/
+
++ https://cran.r-project.org/web/packages/available_packages_by_name.html
+
++ https://www.r-bloggers.com/make-r-speak-sql-with-sqldf/
+
++ http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html
+
++ https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 
 
