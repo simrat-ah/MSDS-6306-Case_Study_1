@@ -1,11 +1,11 @@
-  ---
+---
 title: "MSDS 6306 Case Study 1"
 author: 'Author: Simrat Ahluwalia'
 date: "March 19, 2017"
 output:
-  word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
